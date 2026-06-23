@@ -32,3 +32,17 @@ export const listarServicios = async (req, res)=>{
     }
 }
 
+export const buscarServicioPorID = async (req, res)=>{
+    try{
+       console.log(req.params.id)
+       const servicioBuscado = await Servicio.findById(req.params.id)
+       if(!servicioBuscado){
+         return res.status(404).json({mensaje: 'No se encontro un servicio con el id enviado'})
+       }
+       res.status(200).json(servicioBuscado)
+    }catch(error){
+        console.error(error)
+        res.status(500).json({mensaje: 'Ocurrio un error al intentar buscar un servicio por id'})
+    }
+}
+
