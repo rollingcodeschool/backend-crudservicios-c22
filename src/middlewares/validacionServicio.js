@@ -10,14 +10,20 @@ const reglasServicio = [
     .withMessage(
       "El nombre del servicio debe contener entre 5 y 100 caracteres",
     )
-    .custom(async (valor, {req})=>{
-        const servicioExistente = await Servicio.findOne({nombreServicio:valor})
-        if(!servicioExistente){
-            return true
-        }
-        throw new Error('El servicio ya existe en la base de datos')
-    })
-    ,
+    .custom(async (valor, { req }) => {
+      const servicioExistente = await Servicio.findOne({
+        nombreServicio: valor,
+      });
+      if (!servicioExistente) {
+        return true;
+      }
+      //verificamos si estamos editando
+      if(req.params?.id && servicioExistente._id.toString() === req.params.id){
+        return true
+      }
+
+      throw new Error("El servicio ya existe en la base de datos");
+    }),
   body("precio")
     .isNumeric()
     .withMessage("El precio debe ser en formato numerico")
@@ -39,20 +45,29 @@ const reglasServicio = [
     .isString()
     .withMessage("La categoria debe ser un string")
     .isIn(["Desarrollo Web", "Backend & API", "Consultoría"])
-    .withMessage("La categoria debe ser una de las siguientes opciones: 'Desarrollo Web', 'Backend & API', 'Consultoría' "),
+    .withMessage(
+      "La categoria debe ser una de las siguientes opciones: 'Desarrollo Web', 'Backend & API', 'Consultoría' ",
+    ),
 ];
 
 // para el post y put
 export const validacionServicio = [
-    ...reglasServicio.map((regla)=> regla.notEmpty().withMessage('El campo es un dato obligatorio')), resultadoValidacion
-]
+  ...reglasServicio.map((regla) =>
+    regla.notEmpty().withMessage("El campo es un dato obligatorio"),
+  ),
+  resultadoValidacion,
+];
 
 export const validacionPatchServicio = [
-    ...reglasServicio.map((regla)=> regla.optional({values:"falsy"})), resultadoValidacion
-]
+  ...reglasServicio.map((regla) => regla.optional({ values: "falsy" })),
+  resultadoValidacion,
+];
 
 //para el patch
 
 export const validacionIDServicio = [
-    param('id').isMongoId().withMessage('El id enviado no tiene el formato de ID de mongoDB'), resultadoValidacion
-]
+  param("id")
+    .isMongoId()
+    .withMessage("El id enviado no tiene el formato de ID de mongoDB"),
+  resultadoValidacion,
+];
