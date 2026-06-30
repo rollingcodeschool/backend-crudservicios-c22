@@ -3,7 +3,7 @@ import { borrarServicioPorID, buscarServicioPorID, crearServicio, editarServicio
 import { validacionIDServicio, validacionPatchServicio, validacionServicio } from "../middlewares/validacionServicio.js";
 
 const router = Router();
-//http://localhost:3000/api/servcicios/sdfsdfsdfsd
+//http://localhost:3000/api/servcicios/
 // get - post - put- delete -patch
 router.route('/test').get(prueba)
 router.route('/').post(validacionServicio,crearServicio).get(listarServicios)
