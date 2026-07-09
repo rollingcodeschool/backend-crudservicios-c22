@@ -41,6 +41,17 @@ const usuarioSchema = new Schema({
     enum: ["admin", "cliente"],
     default: 'cliente'
   },
+  // campos nuevos para verificar un registro
+  isVerified:{
+    type: Boolean,
+    default: false
+  },
+  verificationCode:{
+    type: String //codigo de 6 digitos
+  },
+  verificationExpires:{
+    type: Date // fecha limite para validar el codigo
+  }
 },
 {
     timestamps:true
