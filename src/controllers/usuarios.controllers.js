@@ -61,7 +61,23 @@ export const registroUsuario = async (req, res) => {
     const tiempoExpiracion = new Date(Date.now() + 15 * 60 * 1000) // el tiempo configurado son 15 min
     console.log(codigoVerificacion);
     console.log(tiempoExpiracion);
-    
+
+    //preparar los datos para guardar en la BD
+    const datosUsuario = {
+        nombre,
+        email,
+        password,
+        verificationCode: codigoVerificacion,
+        verificationExpires: tiempoExpiracion
+    }
+
+    if( rol && rol.trim() !== ""){
+        datosUsuario.rol = rol
+    }
+
+    const nuevoUsuario = await Usuario.create(datosUsuario)
+    //enviar el correo con el codigo de verificacion
+
   } catch (error) {
     console.error(error);
     res
