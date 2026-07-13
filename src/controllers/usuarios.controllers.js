@@ -1,4 +1,6 @@
 import Usuario from "../models/usuario.js";
+import { transporter } from "../utils/mailer.js";
+
 
 export const crearUsuario = async (req, res) => {
   try {
@@ -60,6 +62,7 @@ export const registroUsuario = async (req, res) => {
 
     const tiempoExpiracion = new Date(Date.now() + 15 * 60 * 1000) // el tiempo configurado son 15 min
     console.log(codigoVerificacion);
+    console.log(Date.now() + 15 * 60 * 1000);
     console.log(tiempoExpiracion);
 
     //preparar los datos para guardar en la BD
@@ -77,7 +80,27 @@ export const registroUsuario = async (req, res) => {
 
     const nuevoUsuario = await Usuario.create(datosUsuario)
     //enviar el correo con el codigo de verificacion
-
+    await transporter.sendMail({
+      from: '"Crud Servicios" <no-reply@crud-servicios.com>',
+      to: email,
+      subject: "🔑 Código de Verificación de Cuenta",
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 5px;">
+          <h2 style="color: #333; text-align: center;">¡Hola, ${nombre}!</h2>
+          <p style="color: #666; font-size: 16px; line-height: 1.5;">
+            Gracias por registrarte. Para activar tu cuenta y poder ingresar a la plataforma, por favor utiliza el siguiente código de verificación:
+          </p>
+          <div style="background-color: #f4f4f4; padding: 15px; text-align: center; font-size: 24px; font-weight: bold; letter-spacing: 5px; margin: 20px 0; border-radius: 4px; color: #007bff;">
+            ${codigoVerificacion}
+          </div>
+          <p style="color: #999; font-size: 12px; text-align: center;">
+            Este código vencerá en 15 minutos. Si no solicitaste este registro, puedes ignorar este correo de forma segura.
+          </p>
+        </div>
+      `
+    });
+    //enviamos la respuesta al frontend
+    res.status(201).json({mensaje: 'Usuario registrado exitosamente. Por favor, revisa tu email para verificar tu cuenta.'})
   } catch (error) {
     console.error(error);
     res
