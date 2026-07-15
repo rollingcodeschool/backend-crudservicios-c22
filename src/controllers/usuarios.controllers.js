@@ -172,6 +172,14 @@ export const solicitarNuevoCodigo = async (req, res) => {
     if (usuarioBuscado.isVerified) {
       return res.status(400).json({ mensaje: "Esta cuenta ya fue verificada" });
     }
+
+   // verifica si ya vencio el codigo generado y recien expirado entonces vuelvo a crear el codigo de verificacion
+    // if (new Date() < usuarioBuscado.verificationExpires) {
+    //   return res.status(400).json({
+    //     mensaje: "El código de verificación a expirado. Solicita uno nuevo",
+    //   });
+    // }
+
     // generar un nuevo codigo y calcular el tiempo
     const codigoVerificacion = Math.floor(
       100000 + Math.random() * 900000,
