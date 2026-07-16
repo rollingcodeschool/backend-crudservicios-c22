@@ -1,5 +1,7 @@
 import Usuario from "../models/usuario.js";
 import { transporter } from "../utils/mailer.js";
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
 
 export const crearUsuario = async (req, res) => {
   try {
@@ -173,7 +175,7 @@ export const solicitarNuevoCodigo = async (req, res) => {
       return res.status(400).json({ mensaje: "Esta cuenta ya fue verificada" });
     }
 
-   // verifica si ya vencio el codigo generado y recien expirado entonces vuelvo a crear el codigo de verificacion
+    // verifica si ya vencio el codigo generado y recien expirado entonces vuelvo a crear el codigo de verificacion
     // if (new Date() < usuarioBuscado.verificationExpires) {
     //   return res.status(400).json({
     //     mensaje: "El código de verificación a expirado. Solicita uno nuevo",
@@ -222,5 +224,48 @@ export const solicitarNuevoCodigo = async (req, res) => {
       mensaje:
         "Ocurrio un error al intentar crear el nuevo codigo de verificacion",
     });
+  }
+};
+
+export const login = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    //verificamos que el email exista
+    const usuarioBuscado = await Usuario.findOne({ email });
+    if (!usuarioBuscado) {
+      return res
+        .status(401)
+        .json({ mensaje: "credenciales invalidas" });
+    }
+    //verificar que el password sea el correcto
+    if (!(await bcrypt.compare(password, usuarioBuscado.password))) {
+      return res
+        .status(401)
+        .json({ mensaje: "credenciales invalidas" });
+    }
+    //chequear si la cuenta del usuario esta verificada
+    if (!usuarioBuscado.isVerified) {
+      return res
+        .status(403)
+        .json({ mensaje: "La cuenta aún no fue verificada." });
+    }
+    //generar y firmar el token
+    const token = jwt.sign({ id: usuarioBuscado._id }, process.env.JWT_SECRET, {
+      expiresIn: "1h",
+    });
+
+    res.cookie("token", token, {
+      httpOnly: true,
+      maxAge: 3600000, //1 hora
+    });
+
+    res
+      .status(200)
+      .json({ mensaje: "Login exitoso", usuario: usuarioBuscado.nombre });
+  } catch (error) {
+    console.error(error);
+    res
+      .status(500)
+      .json({ mensaje: "Ocurrio un error al intentar loguear al usuario" });
   }
 };
