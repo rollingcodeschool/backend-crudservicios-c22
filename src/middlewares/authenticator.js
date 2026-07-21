@@ -1,23 +1,39 @@
 import jwt from "jsonwebtoken";
 
-export const authenticate = (req, res, next) =>{
-    //leer el token de la cookie
-    try{
-        const token = req.cookies.token;
-    
-        if(!token){
-            return res.status(401).json({mensaje: 'Acceso no autorizado: no hay un token en la solicitud'})
-        }
-        //verificar el token
-        const decoded = jwt.verify(token, process.env.JWT_SECRET)
-        console.log(decoded)
-        //guardar la respuesta en la peticion
-        req.user = decoded
-        next()
+export const authenticate = (req, res, next) => {
+  //leer el token de la cookie
+  try {
+    const token = req.cookies.token;
 
-    }catch(error){
-        console.error(error)
-        res.status(403).json({mensaje: 'Acceso denegado: Token invalido o expirado'})
+    if (!token) {
+      return res
+        .status(401)
+        .json({
+          mensaje: "Acceso no autorizado: no hay un token en la solicitud",
+        });
     }
+    //verificar el token
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    console.log(decoded);
+    //guardar la respuesta en la peticion
+    req.user = decoded;
+    next();
+  } catch (error) {
+    console.error(error);
+    res
+      .status(403)
+      .json({ mensaje: "Acceso denegado: Token invalido o expirado" });
+  }
+};
 
-}
+export const isAdmin = (req, res, next) => {
+  // verificar si existe el user en el req y luego verifico el rol
+  if (!req.user || req.user.rol !== "admin") {
+    return res
+      .status(403)
+      .json({
+        mensaje: "Acceso denegado: Se requiere permisos de administrador",
+      });
+  }
+  next();
+};
