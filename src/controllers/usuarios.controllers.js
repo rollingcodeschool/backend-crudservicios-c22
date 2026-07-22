@@ -276,7 +276,6 @@ export const obtenerPerfil = async (req, res) => {
   try {
     //buscar la informacion del usuario
     const usuarioBuscado = await Usuario.findById(req.user.id).select("-password -isVerified -createdAt -updatedAt")
-    console.log(usuarioBuscado);
     if(!usuarioBuscado){
       return res.status(404).json({mensaje: 'Usuario no encontrado'})
     }
@@ -293,3 +292,20 @@ export const obtenerPerfil = async (req, res) => {
       .json({ mensaje: "Ocurrio un error al obtener el perfil del usuario" });
   }
 };
+
+export const logout = (req, res)=>{
+  try {
+    res.clearCookie("token",{
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 3600000, //1 hora
+    })
+    res.status(200).json({mensaje: 'Sesión cerrada exitosamente'})
+  } catch (error) {
+     console.error(error);
+    res
+      .status(500)
+      .json({ mensaje: "Ocurrio un error al realizar logout" });
+  }
+}
