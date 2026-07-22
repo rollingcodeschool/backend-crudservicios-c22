@@ -20,16 +20,16 @@ const router = Router();
 router.route("/test").get(prueba);
 router
   .route("/")
-  .post([authenticate, isAdmin, validacionServicio], crearServicio)
+  .post([authenticate, isAdmin, validacionServicio], crearServicio) //ruta privada
   .get(listarServicios);
 router
   .route("/:id")
   .get(validacionIDServicio, buscarServicioPorID)
-  .delete([authenticate, isAdmin, validacionIDServicio], borrarServicioPorID)
+  .delete([authenticate, isAdmin, validacionIDServicio], borrarServicioPorID)//ruta privada
   .put(
     [authenticate, isAdmin, validacionIDServicio, validacionServicio],
     editarServicioPorID,
-  )
+  )//ruta privada
   .patch([validacionIDServicio, validacionPatchServicio], editarServicioPorID);
 
 export default router;

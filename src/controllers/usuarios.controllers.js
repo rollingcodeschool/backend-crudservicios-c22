@@ -233,15 +233,11 @@ export const login = async (req, res) => {
     //verificamos que el email exista
     const usuarioBuscado = await Usuario.findOne({ email });
     if (!usuarioBuscado) {
-      return res
-        .status(401)
-        .json({ mensaje: "credenciales invalidas" });
+      return res.status(401).json({ mensaje: "credenciales invalidas" });
     }
     //verificar que el password sea el correcto
     if (!(await bcrypt.compare(password, usuarioBuscado.password))) {
-      return res
-        .status(401)
-        .json({ mensaje: "credenciales invalidas" });
+      return res.status(401).json({ mensaje: "credenciales invalidas" });
     }
     //chequear si la cuenta del usuario esta verificada
     if (!usuarioBuscado.isVerified) {
@@ -250,9 +246,13 @@ export const login = async (req, res) => {
         .json({ mensaje: "La cuenta aún no fue verificada." });
     }
     //generar y firmar el token
-    const token = jwt.sign({ id: usuarioBuscado._id, rol: usuarioBuscado.rol }, process.env.JWT_SECRET, {
-      expiresIn: "1h",
-    });
+    const token = jwt.sign(
+      { id: usuarioBuscado._id, rol: usuarioBuscado.rol },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "1h",
+      },
+    );
 
     res.cookie("token", token, {
       httpOnly: true,
@@ -269,5 +269,27 @@ export const login = async (req, res) => {
     res
       .status(500)
       .json({ mensaje: "Ocurrio un error al intentar loguear al usuario" });
+  }
+};
+
+export const obtenerPerfil = async (req, res) => {
+  try {
+    //buscar la informacion del usuario
+    const usuarioBuscado = await Usuario.findById(req.user.id).select("-password -isVerified -createdAt -updatedAt")
+    console.log(usuarioBuscado);
+    if(!usuarioBuscado){
+      return res.status(404).json({mensaje: 'Usuario no encontrado'})
+    }
+    // res.status(200).json({
+    //   nombre: usuarioBuscado.nombre,
+    //   email: usuarioBuscado.email,
+    //   rol: usuarioBuscado.rol
+    // });
+    res.status(200).json(usuarioBuscado);
+  } catch (error) {
+    console.error(error);
+    res
+      .status(500)
+      .json({ mensaje: "Ocurrio un error al obtener el perfil del usuario" });
   }
 };
