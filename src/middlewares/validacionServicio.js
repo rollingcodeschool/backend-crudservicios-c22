@@ -41,13 +41,13 @@ const reglasServicio = [
     .withMessage(
       "La imagen debe ser una url valida y debe terminar con jpg|jpeg|png|webp|avif|svg",
     ),
-  body("categoria")
-    .isString()
-    .withMessage("La categoria debe ser un string")
-    .isIn(["Desarrollo Web", "Backend & API", "Consultoría"])
-    .withMessage(
-      "La categoria debe ser una de las siguientes opciones: 'Desarrollo Web', 'Backend & API', 'Consultoría' ",
-    ),
+  // body("categoria")
+  //   .isString()
+  //   .withMessage("La categoria debe ser un string")
+  //   .isIn(["Desarrollo Web", "Backend & API", "Consultoría"])
+  //   .withMessage(
+  //     "La categoria debe ser una de las siguientes opciones: 'Desarrollo Web', 'Backend & API', 'Consultoría' ",
+  //   ),
 ];
 
 // para el post y put
