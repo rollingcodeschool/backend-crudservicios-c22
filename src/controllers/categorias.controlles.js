@@ -4,7 +4,7 @@ import Categoria from "../models/categoria.js"
 
 export const crearCategoria = async (req, res)=>{
     try {
-        //agregar las validaciones con express-validor
+        //todo: agregar las validaciones con express-validor
         const nuevaCategoria = new Categoria(req.body)
         await nuevaCategoria.save();
         res.status(201).json({mensaje:'Categoria creada correctamente'})
