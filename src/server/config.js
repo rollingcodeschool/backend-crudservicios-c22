@@ -3,7 +3,7 @@ import cors from "cors";
 import morgan from "morgan";
 import { dirname } from "path";
 import { fileURLToPath } from "url";
-import '../database/db.js'
+import "../database/db.js";
 import cookieParser from "cookie-parser";
 
 export default class Server {
@@ -11,14 +11,14 @@ export default class Server {
     //inicializar las propiedades del futuro objeto
     this.app = express();
     this.PORT = process.env.PORT || 3000;
-    this.middlewares()
+    this.middlewares();
   }
   // definir metodos
   middlewares() {
-    this.app.use(cors()); //permite conexiones remotas
+    this.app.use(cors());
     this.app.use(express.json()); // permite interpretar los datos que lleguen en la solicitud o request en formato json
     this.app.use(morgan("dev"));
-    this.app.use(cookieParser())
+    this.app.use(cookieParser());
     const __dirname = dirname(fileURLToPath(import.meta.url));
     // configurar un archivo estatico como pagina principal
     this.app.use(express.static(__dirname + "/../../public"));

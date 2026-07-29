@@ -6,6 +6,7 @@ const carritoSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: "usuario",
       required: true,
+      unique: true,
     },
     items: [
       {
@@ -27,6 +28,6 @@ const carritoSchema = new Schema(
   },
 );
 
-const Carrito = mongoose.model('carrito', carritoSchema)
+const Carrito = mongoose.model("carrito", carritoSchema);
 
-export default Carrito
+export default Carrito;
