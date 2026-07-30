@@ -61,3 +61,12 @@ export const obtenerCarrito = async (req, res) => {
     res.status(500).json({ mensaje: "Ocurrio un error al obtener el carrito" });
   }
 };
+
+export const vaciarCarrito = async(req, res)=>{
+    try{
+
+    }catch(error){
+        console.error(error);
+    res.status(500).json({ mensaje: "Ocurrio un error al obtener el carrito" });
+    }
+}
