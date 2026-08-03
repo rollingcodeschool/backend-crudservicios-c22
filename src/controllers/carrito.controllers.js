@@ -62,22 +62,61 @@ export const obtenerCarrito = async (req, res) => {
   }
 };
 
-export const vaciarCarrito = async(req, res)=>{
-    try{
-      const userId= req.user.id
-      //obtener el carrito
-      const carrito = await buscarOcrearCarrito(userId)
-      //vaciar los elementos del carrito
-      carrito.items = []
-      //guardar los cambios del carrito en la base de datos
-      await carrito.save()
+export const vaciarCarrito = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    //obtener el carrito
+    const carrito = await buscarOcrearCarrito(userId);
+    //vaciar los elementos del carrito
+    carrito.items = [];
+    //guardar los cambios del carrito en la base de datos
+    await carrito.save();
 
-      res.status(200).json({
-        mensaje: 'El carrito fue vaciado con exito',
-        carrito
-      })
-    }catch(error){
-        console.error(error);
+    res.status(200).json({
+      mensaje: "El carrito fue vaciado con exito",
+      carrito,
+    });
+  } catch (error) {
+    console.error(error);
     res.status(500).json({ mensaje: "Ocurrio un error al obtener el carrito" });
+  }
+};
+
+export const restarCantidadServicio = async (req, res) => {
+  try {
+    const userId = req.user.id
+    const {servicioId} = req.params
+
+    const carrito = await buscarOcrearCarrito(userId)
+
+    //buscar la posicion del servicio en el array de items
+    const itemIndex = carrito.items.findIndex((item)=> item.servicio.toString() === servicioId)
+
+    if(itemIndex === -1){
+      return res.status(404).json({mensaje: 'El servicio no se encuentra en el carrito'})
     }
-}
+
+    //restar -1 a la cantidad de servicio en el carrito
+    carrito.items[itemIndex].cantidad -= 1
+
+    //si la cantidad llego a 0, borramos el servicio del carrito
+    if(carrito.items[itemIndex].cantidad <= 0){
+      carrito.items.splice(itemIndex, 1)
+    }
+
+    //guardamos en la base de datos
+    await carrito.save()
+    await carrito.populate('items.servicio', 'nombreServicio precio imagen')
+    res.status(200).json({
+      mensaje: 'cantidad actualizada correctamente',
+      carrito
+    })
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      mensaje:
+        "Ocurrio un error al intentar reducir la cantidad de un servicio",
+    });
+  }
+};
