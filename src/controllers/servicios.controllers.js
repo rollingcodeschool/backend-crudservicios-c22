@@ -59,8 +59,8 @@ export const listarServicios = async (req, res) => {
       .json({ 
         servicios, 
         cantidadServicios, 
-        paginaActual: numeroPagina || 0,
-        totalPaginas:  Math.ceil(cantidadServicios/nuevoLimite) || 0
+        paginaActual: numeroPagina,
+        totalPaginas:  Math.ceil(cantidadServicios/nuevoLimite)
     });
   } catch (error) {
     console.error(error);
