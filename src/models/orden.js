@@ -1,10 +1,12 @@
+import { Preference } from "mercadopago";
 import mongoose, { Schema } from "mongoose";
 
-const ordenSchema = new Schema({
-    usuario:{
-        type: Schema.Types.ObjectId,
-        ref:"usuario",
-        required: true
+const ordenSchema = new Schema(
+  {
+    usuario: {
+      type: Schema.Types.ObjectId,
+      ref: "usuario",
+      required: true,
     },
     items: [
       {
@@ -14,12 +16,12 @@ const ordenSchema = new Schema({
           required: true,
         },
         nombreServicio: {
-            type: String,
-            required:true
+          type: String,
+          required: true,
         },
-        precioUnitario:{
-            type: Number,
-            required:true
+        precioUnitario: {
+          type: Number,
+          required: true,
         },
         cantidad: {
           type: Number,
@@ -28,8 +30,28 @@ const ordenSchema = new Schema({
         },
       },
     ],
-    montoTotal:{
-        type: Number,
-        required:true
-    }
-})
+    montoTotal: {
+      type: Number,
+      required: true,
+    },
+    estado: {
+      type: String,
+      enum: ["pendiente", "aprobado", "rechazado", "cancelado"],
+      default: "pendiente",
+    },
+    //id de mercado pago para auditoria
+    preferenceId: {
+      type: String,
+    },
+    paymentId: {
+      type: String,
+    },
+  },
+  {
+    timestamps: true,
+  },
+);
+
+const Orden = mongoose.model('orden', ordenSchema)
+
+export default Orden;
