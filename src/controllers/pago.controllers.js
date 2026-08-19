@@ -1,7 +1,6 @@
-import { MercadoPagoConfig, Preference } from "mercadopago";
+import { MercadoPagoConfig, Preference, Payment } from "mercadopago";
 import buscarOcrearCarrito from "../utils/buscarOcrearCarrito.js";
 import Orden from "../models/orden.js";
-
 
 const client = new MercadoPagoConfig({
   accessToken: process.env.MP_ACCESS_TOKEN,
@@ -59,6 +58,7 @@ export const crearPreferenciaPago = async (req, res) => {
             items: itemsMP,
             external_reference: nuevaOrden._id.toString(),
             //webhook
+            notification_url: `${process.env.BACKEND_URL}/api/pago/webhook`,
             back_urls:{
                 success: `${process.env.PAYMENT_FRONTEND_URL}/checkout/resultado?status=success`,
                 failure: `${process.env.PAYMENT_FRONTEND_URL}/checkout/resultado?status=failure`,
@@ -83,5 +83,53 @@ export const crearPreferenciaPago = async (req, res) => {
     res
       .status(500)
       .json({ mensaje: "Ocurrio un error al crear la preferencia de pago" });
+  }
+};
+
+export const recibirWebhook = async (req, res) => {
+  try {
+    console.log("🚨 CUIDADO: El Webhook se está ejecutando!"); // 👈 Para confirmar la entrada
+    const { type, "data.id": paymentId } = req.query;
+    console.log(req.query);
+    // 1. Verificamos que sea un evento de pago
+    if (type === "payment" && paymentId) {
+      // 2. Consultamos el estado del pago a Mercado Pago
+      const payment = new Payment(client);
+      const pagoData = await payment.get({ id: paymentId });
+
+      // 3. Si fue aprobado, actualizamos nuestra Orden en MongoDB usando el external_reference
+      if (pagoData.status === "approved") {
+        const ordenActualizada = await Orden.findByIdAndUpdate(
+          pagoData.external_reference,
+          {
+            estado: "aprobado",
+            paymentId: paymentId,
+          },
+          { new: true },
+        );
+        console.log("🛒 orden actualizada:", ordenActualizada);
+        // 2. Reutilizamos la lógica de vaciarCarrito usando el ID de usuario de la orden
+        if (ordenActualizada) {
+          const carrito = await buscarOcrearCarrito(ordenActualizada.usuario);
+          carrito.items = [];
+          await carrito.save();
+          console.log(
+            "🛒 Carrito vaciado con éxito para el usuario:",
+            ordenActualizada.usuario,
+          );
+        }
+
+        console.log(
+          "✅ Pago aprobado para la Orden:",
+          pagoData.external_reference,
+        );
+      }
+    }
+
+    // 4. Confirmar recepción a Mercado Pago (HTTP 200)
+    res.sendStatus(200);
+  } catch (error) {
+    console.error("❌ Error en Webhook:", error.message);
+    res.status(500).json({ error: error.message });
   }
 };
