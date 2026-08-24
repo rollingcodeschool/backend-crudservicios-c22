@@ -13,6 +13,8 @@ import {
   validacionServicio,
 } from "../middlewares/validacionServicio.js";
 import { authenticate, isAdmin } from "../middlewares/authenticator.js";
+import upload from "../middlewares/upload.js";
+import errorMulter from "../middlewares/errorMulter.js";
 
 const router = Router();
 //http://localhost:3000/api/servcicios/
@@ -20,14 +22,15 @@ const router = Router();
 router.route("/test").get(prueba);
 router
   .route("/")
-  .post([authenticate, isAdmin, validacionServicio], crearServicio) //ruta privada
-  .get(listarServicios);
+  .get(listarServicios)
+  .post([authenticate, isAdmin, upload.single('imagen'), errorMulter , validacionServicio],  crearServicio);
+  // .post([authenticate, isAdmin, validacionServicio], crearServicio) //ruta privada
 router
   .route("/:id")
   .get(validacionIDServicio, buscarServicioPorID)
   .delete([authenticate, isAdmin, validacionIDServicio], borrarServicioPorID)//ruta privada
   .put(
-    [authenticate, isAdmin, validacionIDServicio, validacionServicio],
+    [authenticate, isAdmin,upload.single('imagen'), errorMulter , validacionIDServicio, validacionServicio],
     editarServicioPorID,
   )//ruta privada
   .patch([validacionIDServicio, validacionPatchServicio], editarServicioPorID);

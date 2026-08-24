@@ -34,13 +34,13 @@ const reglasServicio = [
     .withMessage("La descripción debe ser un string")
     .isLength({ min: 10, max: 500 })
     .withMessage("La descripción debe contener entre 10 y 500 caracteres"),
-  body("imagen")
-    .isString()
-    .withMessage("La imagen debe ser un string")
-    .matches(/^https:\/\/.+\.(jpg|jpeg|png|webp|avif|svg)$/)
-    .withMessage(
-      "La imagen debe ser una url valida y debe terminar con jpg|jpeg|png|webp|avif|svg",
-    ),
+  // body("imagen")
+  //   .isString()
+  //   .withMessage("La imagen debe ser un string")
+  //   .matches(/^https:\/\/.+\.(jpg|jpeg|png|webp|avif|svg)$/)
+  //   .withMessage(
+  //     "La imagen debe ser una url valida y debe terminar con jpg|jpeg|png|webp|avif|svg",
+  //   ),
   // body("categoria")
   //   .isString()
   //   .withMessage("La categoria debe ser un string")
